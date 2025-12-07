@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Horizon Scrollytelling</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #000;
+        color: #fff;
+        overflow-x: hidden;
+      }
+      ::-webkit-scrollbar {
+        display: none;
+      }
+      html {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      
+      .hero-container {
+        position: relative;
+        width: 100%;
+        background-color: #000;
+      }
+
+      .hero-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .side-menu {
+        position: fixed;
+        left: 3rem;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: white;
+      }
+
+      .menu-icon {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .menu-icon span {
+        width: 4px;
+        height: 4px;
+        background-color: white;
+        border-radius: 50%;
+      }
+
+      .vertical-text {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+        opacity: 0.7;
+      }
+
+      .hero-content {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        text-align: center;
+        width: 100%;
+        pointer-events: none;
+        mix-blend-mode: difference;
+      }
+
+      .hero-title {
+        font-size: clamp(3rem, 10vw, 10rem);
+        font-weight: bold;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .title-char {
+        display: inline-block;
+      }
+
+      .hero-subtitle {
+        margin-top: 2rem;
+        font-size: clamp(1rem, 1.5vw, 1.25rem);
+        font-weight: 300;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .subtitle-line {
+        margin: 0.25rem 0;
+        display: block;
+      }
+
+      .scroll-progress {
+        position: fixed;
+        bottom: 3rem;
+        right: 3rem;
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        color: white;
+      }
+
+      .scroll-text {
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+        opacity: 0.7;
+        margin-bottom: 0.5rem;
+      }
+
+      .progress-track {
+        width: 100px;
+        height: 2px;
+        background-color: rgba(255, 255, 255, 0.2);
+        margin-bottom: 0.5rem;
+        position: relative;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background-color: white;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .section-counter {
+        font-family: monospace;
+        font-size: 0.875rem;
+        opacity: 0.8;
+      }
+      
+      .scroll-sections {
+        position: relative;
+        z-index: 0;
+      }
+      
+      .content-section {
+        height: 100vh;
+        width: 100%;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@/": "./",
+    "react": "https://esm.sh/react@18.3.1?dev",
+    "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime?dev",
+    "react-dom": "https://esm.sh/react-dom@18.3.1?dev&deps=react@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?dev&deps=react@18.3.1",
+    "framer-motion": "https://esm.sh/framer-motion@11.11.11?dev&deps=react@18.3.1,react-dom@18.3.1",
+    "motion/react": "https://esm.sh/framer-motion@11.11.11?dev&deps=react@18.3.1,react-dom@18.3.1",
+    "motion": "https://esm.sh/framer-motion@11.11.11?dev&deps=react@18.3.1,react-dom@18.3.1",
+    "next-themes": "https://esm.sh/next-themes@0.4.3?dev&deps=react@18.3.1,react-dom@18.3.1",
+    "lucide-react": "https://esm.sh/lucide-react@0.460.0?dev&deps=react@18.3.1",
+    "clsx": "https://esm.sh/clsx@2.1.1?dev",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@2.5.4?dev",
+    "three": "https://esm.sh/three@0.160.0?dev",
+    "three/": "https://esm.sh/three@0.160.0/",
+    "three/examples/jsm/postprocessing/EffectComposer": "https://esm.sh/three@0.160.0/examples/jsm/postprocessing/EffectComposer?dev&deps=three@0.160.0",
+    "three/examples/jsm/postprocessing/RenderPass": "https://esm.sh/three@0.160.0/examples/jsm/postprocessing/RenderPass?dev&deps=three@0.160.0",
+    "three/examples/jsm/postprocessing/UnrealBloomPass": "https://esm.sh/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass?dev&deps=three@0.160.0",
+    "@react-three/fiber": "https://esm.sh/@react-three/fiber@8.15.16?dev&deps=react@18.3.1,three@0.160.0",
+    "gsap": "https://esm.sh/gsap@3.12.5?dev",
+    "gsap/ScrollTrigger": "https://esm.sh/gsap@3.12.5/ScrollTrigger?dev&deps=gsap@3.12.5",
+    "gsap/CustomEase": "https://esm.sh/gsap@3.12.5/CustomEase?dev&deps=gsap@3.12.5",
+    "@gsap/react": "https://esm.sh/@gsap/react@2.1.0?dev&deps=react@18.3.1,gsap@3.12.5",
+    "lenis": "https://esm.sh/lenis@1.1.13?dev",
+    "lenis/react": "https://esm.sh/lenis@1.1.13/react?dev&deps=react@18.3.1",
+    "swiper": "https://esm.sh/swiper@11.1.14?dev",
+    "swiper/react": "https://esm.sh/swiper@11.1.14/react?dev&deps=react@18.3.1",
+    "swiper/modules": "https://esm.sh/swiper@11.1.14/modules?dev&deps=react@18.3.1",
+    "react-intersection-observer": "https://esm.sh/react-intersection-observer@9.13.1?dev&deps=react@18.3.1",
+    "@number-flow/react": "https://esm.sh/@number-flow/react@0.4.2?dev&deps=react@18.3.1",
+    "use-sound": "https://esm.sh/use-sound@4.0.3?dev&deps=react@18.3.1",
+    "media-chrome/react": "https://esm.sh/media-chrome@4.4.0/dist/react/index.js?dev&deps=react@18.3.1",
+    "embla-carousel-react": "https://esm.sh/embla-carousel-react@8.3.0?dev&deps=react@18.3.1",
+    "embla-carousel-autoplay": "https://esm.sh/embla-carousel-autoplay@8.3.0?dev",
+    "@radix-ui/react-scroll-area": "https://esm.sh/@radix-ui/react-scroll-area@1.2.0?dev&deps=react@18.3.1,react-dom@18.3.1",
+    "next/link": "data:text/javascript;charset=utf-8,import%20React%20from%20%22react%22%3B%0Aconst%20Link%20%3D%20(%7B%20href%2C%20children%2C%20...props%20%7D)%20%3D%3E%20React.createElement(%27a%27%2C%20%7B%20href%2C%20...props%20%7D%2C%20children)%3B%0Aexport%20default%20Link%3B",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "lenis/": "https://aistudiocdn.com/lenis@^1.3.15/",
+    "swiper/": "https://aistudiocdn.com/swiper@^12.0.3/",
+    "next/": "https://aistudiocdn.com/next@^16.0.7/",
+    "gsap/": "https://aistudiocdn.com/gsap@^3.13.0/",
+    "motion/": "https://aistudiocdn.com/motion@^12.23.25/",
+    "media-chrome/": "https://aistudiocdn.com/media-chrome@^4.16.1/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
